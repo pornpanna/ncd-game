@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ชีวิตนักศึกษา 4 ปี | เกมเรียนรู้ NCD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1e293b;--muted:#64748b;--pri:#4f46e5;--pri2:#6366f1;--ok:#16a34a;--warn:#dc2626;--mid:#f59e0b;--line:#c7d2fe}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Prompt',system-ui,sans-serif;background:linear-gradient(160deg,#eef2ff,#e0f2fe);color:var(--ink);min-height:100vh}
+  .wrap{max-width:1150px;margin:0 auto;padding:20px}
+  .screen{display:none}.screen.on{display:block}
+  h1{font-size:clamp(28px,4vw,44px);margin:.2em 0;color:var(--pri)}
+  h2{margin:.3em 0}
+  .card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(79,70,229,.12);margin-bottom:16px}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{font-family:inherit;font-size:18px;font-weight:600;border:0;border-radius:14px;padding:12px 22px;cursor:pointer;background:var(--pri);color:#fff}
+  .btn:hover{background:var(--pri2)}
+  .btn.ghost{background:#fff;color:var(--pri);border:2px solid var(--pri)}
+  .btn.small{font-size:14px;padding:6px 12px}
+  .muted{color:var(--muted)} .small{font-size:14px}
+  input{font-family:inherit;font-size:17px;padding:8px 12px;border-radius:10px;border:2px solid var(--line)}
+  .warnbox{background:#fef2f2;border-left:6px solid var(--warn);padding:12px 16px;border-radius:12px;margin:12px 0;display:none}
+  .game{display:grid;grid-template-columns:300px 1fr;gap:16px}
+  @media(max-width:850px){.game{grid-template-columns:1fr}}
+  .side .card{padding:16px}
+  .cam{position:relative;width:100%;aspect-ratio:4/3;background:#0f172a;border-radius:14px;overflow:hidden}
+  .cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+  .cam .tilt{position:absolute;bottom:8px;left:8px;right:8px;text-align:center;color:#fff;font-weight:600;background:rgba(0,0,0,.5);border-radius:10px;padding:4px}
+  .cam .demo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;padding:12px}
+  .meter{margin:8px 0}
+  .meter .lb{display:flex;justify-content:space-between;font-size:15px}
+  .meter .tr{height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden}
+  .meter .tr i{display:block;height:100%;border-radius:6px;transition:width .6s, background .6s}
+  .avatar{display:flex;justify-content:center}
+  .year{display:inline-block;background:var(--pri);color:#fff;border-radius:999px;padding:4px 14px;font-weight:600}
+  .scene{text-align:center}
+  .scene .emo{font-size:72px;line-height:1.1}
+  .scene .q{font-size:clamp(20px,2.4vw,28px);font-weight:600;margin:10px 0 18px}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .choice{position:relative;border:3px solid var(--line);border-radius:18px;padding:18px 16px;font-size:clamp(16px,1.8vw,20px);cursor:pointer;background:#fff;overflow:hidden;min-height:120px;display:flex;flex-direction:column;justify-content:center}
+  .choice .arrow{font-size:28px;font-weight:800;color:var(--pri)}
+  .choice .fill{position:absolute;left:0;bottom:0;height:6px;width:0;background:var(--pri)}
+  .choice.act{border-color:var(--pri);background:#eef2ff}
+  .choice:hover{border-color:var(--pri2)}
+  .feedback{display:none;margin-top:16px;padding:16px;border-radius:14px;font-size:18px}
+  .feedback.good{display:block;background:#ecfdf5;border-left:6px solid var(--ok)}
+  .feedback.bad{display:block;background:#fff7ed;border-left:6px solid var(--mid)}
+  .progress{display:flex;gap:4px;margin-bottom:12px}
+  .progress span{flex:1;height:8px;border-radius:4px;background:#e2e8f0}
+  .progress span.done{background:var(--pri)}
+  .progress span.cur{background:#a5b4fc}
+  .compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center}
+  @media(max-width:850px){.compare{grid-template-columns:1fr}}
+  .risk{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .risk div{border-radius:14px;padding:12px;text-align:center;font-weight:600}
+  .lo{background:#dcfce7;color:#166534}.md{background:#fef3c7;color:#92400e}.hi{background:#fee2e2;color:#991b1b}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}
+  th{background:#eef2ff}
+  .spinner{width:56px;height:56px;border:6px solid var(--line);border-top-color:var(--pri);border-radius:50%;animation:sp 1s linear infinite;margin:20px auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  a.back{color:var(--pri);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== เริ่ม ===== -->
+<section id="s-start" class="screen on">
+  <a class="back" href="index.html">← หน้ารวมเกม</a>
+  <h1>🎓 ชีวิตนักศึกษา 4 ปี</h1>
+  <div class="card">
+    <p style="font-size:18px;margin-top:0">คุณคือนักศึกษาปี 1 ที่เพิ่งเข้ามหาวิทยาลัย ตลอด 4 ปีจะเจอสถานการณ์ในชีวิตประจำวัน <b>12 เหตุการณ์</b><br>
+    <b>เอียงหัวไปซ้าย หรือขวา</b> ค้างไว้ประมาณ 1 วินาที เพื่อเลือกทางเลือก ตัวละครจะเปลี่ยนไปตามการเลือกของคุณ<br>
+    ตอนจบ มาดูกันว่า “คุณในอีก 20 ปี” จะเป็นอย่างไร</p>
+    <div class="row" style="margin:12px 0">
+      <label for="pname"><b>ชื่อเล่น</b></label>
+      <input id="pname" maxlength="20" placeholder="เช่น ต้นข้าว" style="width:200px">
+    </div>
+    <div class="warnbox" id="warn"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" id="btn-cam">📷 เปิดกล้องและเริ่มเล่น</button>
+      <button class="btn ghost" id="btn-demo">🖱️ เล่นด้วยเมาส์/คีย์บอร์ด</button>
+    </div>
+    <p class="muted small" style="margin-bottom:0">💡 นั่งหน้าแลปท็อปตามปกติ ให้เห็นใบหน้าชัด ๆ · ไม่ใช้กล้องก็ได้: คลิกที่ตัวเลือก หรือกดปุ่มลูกศร ← →<br>
+    ภาพจากกล้องประมวลผลในเครื่องเท่านั้น ไม่ถูกบันทึกหรือส่งออก</p>
+  </div>
+</section>
+
+<section id="s-loading" class="screen">
+  <div class="card" style="text-align:center"><div class="spinner"></div><h2 id="load-msg">กำลังเปิดกล้อง…</h2><p class="muted">ครั้งแรกอาจใช้เวลา 10–30 วินาที</p></div>
+</section>
+
+<!-- ===== เล่น ===== -->
+<section id="s-play" class="screen">
+  <div class="game">
+    <div class="side">
+      <div class="card">
+        <div class="cam" id="cam">
+          <video id="video" playsinline muted></video>
+          <div class="demo" id="cam-demo" style="display:none">โหมดไม่ใช้กล้อง<br>คลิก หรือกด ← →</div>
+          <div class="tilt" id="tilt">ตั้งหัวตรง</div>
+        </div>
+        <div class="row" style="margin-top:8px;justify-content:space-between">
+          <button class="btn ghost small" id="btn-calib">🎯 ตั้งค่าหัวตรงใหม่</button>
+          <button class="btn ghost small" id="btn-swap">⇄ สลับซ้าย-ขวา</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="avatar" id="avatar-now"></div>
+        <div id="meters"></div>
+      </div>
+    </div>
+    <div class="card scene">
+      <div class="progress" id="progress"></div>
+      <span class="year" id="year">ปี 1</span>
+      <div class="emo" id="emo">🌙</div>
+      <div class="q" id="q"></div>
+      <div class="choices">
+        <div class="choice" id="c0"><div class="arrow">⬅ เอียงซ้าย</div><div id="t0"></div><div class="fill" id="f0"></div></div>
+        <div class="choice" id="c1"><div class="arrow">เอียงขวา ➡</div><div id="t1"></div><div class="fill" id="f1"></div></div>
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== จบ ===== -->
+<section id="s-end" class="screen">
+  <h1 id="end-title">🔮 คุณในอีก 20 ปี</h1>
+  <div class="card">
+    <div class="compare">
+      <div><div id="av-start"></div><b>วันแรกที่เข้ามหาวิทยาลัย</b><br><span class="muted">อายุ 18 ปี</span></div>
+      <div><div id="av-grad"></div><b>วันรับปริญญา</b><br><span class="muted">อายุ 22 ปี</span></div>
+      <div><div id="av-future"></div><b>อีก 20 ปีข้างหน้า</b><br><span class="muted">อายุ 42 ปี (ถ้ายังใช้ชีวิตแบบนี้ต่อไป)</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>ระดับความเสี่ยงโรค NCD (จำลอง)</h2>
+    <div class="risk" id="risk"></div>
+    <p id="end-msg" style="font-size:18px"></p>
+    <p class="muted small">⚠️ เกมนี้เป็นการจำลองเพื่อการเรียนรู้ ไม่ใช่การประเมินสุขภาพจริง ความเสี่ยงจริงขึ้นกับพันธุกรรม อายุ และปัจจัยอื่นอีกมาก ควรตรวจสุขภาพประจำปีกับบุคลากรทางการแพทย์</p>
+  </div>
+  <div class="card">
+    <h2>📋 การเลือกของคุณ</h2>
+    <table><thead><tr><th>ปี</th><th>สถานการณ์</th><th>คุณเลือก</th><th>สิ่งที่ควรรู้</th></tr></thead><tbody id="log"></tbody></table>
+  </div>
+  <div class="card">
+    <h2>💬 คำถามชวนคิด (สำหรับอภิปรายในชั้นเรียน)</h2>
+    <ol style="font-size:17px;line-height:1.8">
+      <li>การเลือกข้อไหนที่คุณคิดว่า “ไม่เป็นไรหรอก ครั้งเดียว” แต่ในชีวิตจริงทำบ่อยกว่านั้น?</li>
+      <li>ปัจจัยเสี่ยงของ NCD ข้อใดที่พบมากที่สุดในกลุ่มเพื่อนนักศึกษาของคุณ?</li>
+      <li>สภาพแวดล้อมในมหาวิทยาลัย (ร้านค้า ตารางเรียน หอพัก) ทำให้เลือกทางที่ดีต่อสุขภาพได้ง่ายหรือยาก? ควรปรับอะไร?</li>
+      <li>ถ้าจะเปลี่ยนพฤติกรรม 1 อย่างตั้งแต่สัปดาห์นี้ คุณจะเลือกเปลี่ยนอะไร และจะทำอย่างไรให้ทำต่อเนื่องได้?</li>
+    </ol>
+    <div class="row"><button class="btn" id="btn-replay">🔁 เล่นใหม่</button><button class="btn ghost" onclick="window.print()">🖨️ พิมพ์ผล / บันทึก PDF</button></div>
+  </div>
+</section>
+</div>
+
+<script type="module">
+/* ==========================================================
+   สถานการณ์ — อาจารย์แก้ไข/เพิ่มได้ที่นี่
+   d = ผลต่อค่าต่าง ๆ: w=น้ำหนัก(กก.) bp=ความดันตัวบน(mmHg) sg=น้ำตาล(mg/dL) st=ความเครียด(0-100) fit=ความฟิต(0-100)
+   good = true ถ้าเป็นทางเลือกที่ดีต่อสุขภาพ
+   ========================================================== */
+const SCENES = [
+  { y:1, e:'🌙', q:'ตี 2 แล้ว งานกลุ่มยังไม่เสร็จ ส่งพรุ่งนี้ 8 โมง',
+    a:[{t:'ปั่นต่อจนเสร็จ ดื่มกาแฟกระป๋อง 2 กระป๋อง', good:false, d:{w:.5,bp:2,sg:2,st:10,fit:-2}, k:'การนอนน้อยเรื้อรังสัมพันธ์กับน้ำหนักเพิ่ม ความดัน และการควบคุมน้ำตาลที่แย่ลง'},
+       {t:'นอนก่อน ตั้งปลุกตี 6 แล้วทำต่อ', good:true, d:{st:-3,fit:1}, k:'ผู้ใหญ่ควรนอน 7–9 ชั่วโมง/คืน การนอนพอช่วยทั้งความจำและสุขภาพ'}]},
+  { y:1, e:'🧋', q:'พักเที่ยง เพื่อนชวนต่อคิวร้านชานมเปิดใหม่',
+    a:[{t:'น้ำเปล่าพอ ขอไปซื้อผลไม้แทน', good:true, d:{w:-.3}, k:'เครื่องดื่มรสหวานเป็นแหล่งน้ำตาลหลักของวัยรุ่น ไม่ควรได้น้ำตาลเกิน 6 ช้อนชา/วัน'},
+       {t:'เอาแก้วใหญ่ หวาน 100% ไข่มุกเพิ่ม', good:false, d:{w:1.5,sg:4,st:-2}, k:'ชานม 1 แก้วอาจมีพลังงาน 300–500 kcal ถ้าดื่มทุกวัน น้ำหนักเพิ่มได้หลายกิโลต่อปี'}]},
+  { y:1, e:'🛗', q:'ห้องเรียนอยู่ชั้น 4 คิวลิฟต์ยาวมาก',
+    a:[{t:'ยืนรอลิฟต์ (เหนื่อยแล้ว)', good:false, d:{fit:-2,w:.3}, k:'กิจกรรมทางกายเล็ก ๆ ในชีวิตประจำวัน เช่น ขึ้นบันได เดิน สะสมรวมกันได้'},
+       {t:'เดินขึ้นบันได', good:true, d:{fit:4,w:-.3}, k:'องค์การอนามัยโลกแนะนำ กิจกรรมทางกายระดับปานกลาง 150–300 นาที/สัปดาห์'}]},
+  { y:2, e:'🍳', q:'ตื่นสาย เหลือ 15 นาทีก่อนเข้าเรียน',
+    a:[{t:'ซื้อนมจืด + แซนด์วิช/ไข่ต้ม ร้านหน้าคณะ', good:true, d:{st:-1}, k:'มื้อเช้าที่มีโปรตีนช่วยให้อิ่มนาน ลดการกินจุบจิบของหวานช่วงสาย'},
+       {t:'ไม่กินเช้า ค่อยไปกินบุฟเฟต์มื้อเย็นทีเดียว', good:false, d:{w:1,sg:3}, k:'การอดมื้อแล้วกินหนักทีเดียว ทำให้กินเกินความต้องการ และน้ำตาลในเลือดแกว่ง'}]},
+  { y:2, e:'🎉', q:'งานเลี้ยงรุ่นท้ายเทอม รุ่นพี่ยื่นแก้วเหล้ามาให้',
+    a:[{t:'ดื่มด้วย ไม่อยากเสียบรรยากาศ ต่อจนเช้า', good:false, d:{w:1,bp:4,sg:2,st:-2,fit:-2}, k:'แอลกอฮอล์เป็นปัจจัยเสี่ยงสำคัญของ NCD ทั้งความดัน โรคตับ มะเร็ง และพลังงานส่วนเกิน'},
+       {t:'ปฏิเสธอย่างสุภาพ ขอเป็นน้ำเปล่า/น้ำอัดลมไม่มีน้ำตาล', good:true, d:{st:1}, k:'ปฏิเสธได้โดยไม่เสียเพื่อน เช่น “พรุ่งนี้ต้องขับรถ/มีสอบ” การไม่ดื่มคือทางเลือกที่ปลอดภัยที่สุด'}]},
+  { y:2, e:'💨', q:'เพื่อนในหอยื่นบุหรี่ไฟฟ้ากลิ่นผลไม้ให้ลอง “แค่สูบเล่น ๆ ไม่ติดหรอก”',
+    a:[{t:'ไม่เอา ขอบใจ', good:true, d:{}, k:'บุหรี่ไฟฟ้ามีนิโคตินซึ่งเสพติดได้ง่าย และส่งผลต่อหัวใจ หลอดเลือด และปอด'},
+       {t:'ลองสักหน่อย กลิ่นหอมดี', good:false, d:{bp:5,fit:-5,st:-1}, k:'คนที่เริ่มสูบช่วงวัยรุ่นมีแนวโน้มติดและเลิกยาก นิโคตินเพิ่มความดันและอัตราการเต้นของหัวใจ'}]},
+  { y:3, e:'📚', q:'สัปดาห์สอบกลางภาค เครียดมาก',
+    a:[{t:'ตุนขนมกรุบกรอบ ช็อกโกแลต นั่งอ่านทั้งวันไม่ลุก', good:false, d:{w:1,sg:3,st:5,fit:-3}, k:'ความเครียดทำให้อยากกินของหวานมัน การนั่งนานต่อเนื่องเป็นปัจจัยเสี่ยงแยกจากการไม่ออกกำลังกาย'},
+       {t:'อ่านทีละ 50 นาที ลุกยืดเส้น เย็นไปเดินเล่นกับเพื่อน', good:true, d:{st:-6,fit:2}, k:'การขยับร่างกายและพูดคุยกับเพื่อน ช่วยจัดการความเครียดได้ดีกว่ากินระบายเครียด'}]},
+  { y:3, e:'🛵', q:'ฝนตก ขี้เกียจออกไปกินข้าว เปิดแอปสั่งอาหาร',
+    a:[{t:'ไก่ทอดชุดใหญ่ + เฟรนช์ฟรายส์ + น้ำอัดลม (โปรคุ้ม)', good:false, d:{w:1.5,bp:2,sg:2}, k:'อาหารทอด เค็ม และหวาน ในมื้อเดียว เกินความต้องการพลังงานได้ง่าย'},
+       {t:'ข้าวกล้อง + ไก่ย่าง + ผัด/ต้มผัก', good:true, d:{w:-.3}, k:'จานสุขภาพ 2:1:1 = ผัก 2 ส่วน ข้าว/แป้ง 1 ส่วน โปรตีน 1 ส่วน'}]},
+  { y:3, e:'🍜', q:'ข้าวหมดหอ เหลือบะหมี่กึ่งสำเร็จรูป',
+    a:[{t:'ใส่ผงปรุงครึ่งซอง เพิ่มไข่และผัก ไม่ซดน้ำจนหมด', good:true, d:{bp:-1}, k:'โซเดียมส่วนใหญ่อยู่ในซองเครื่องปรุงและน้ำซุป คนไทยกินเค็มเกินที่แนะนำ (โซเดียมไม่เกิน 2,000 มก./วัน)'},
+       {t:'ใส่ผงครบ เติมน้ำปลา ซดน้ำหมดถ้วย', good:false, d:{bp:5,w:.3}, k:'การกินเค็มเป็นประจำเพิ่มความเสี่ยงความดันโลหิตสูง โรคไต และโรคหัวใจ'}]},
+  { y:4, e:'💻', q:'ทำโปรเจกต์จบ นั่งหน้าคอมวันละ 10 ชั่วโมง',
+    a:[{t:'ตั้งเตือนทุกชั่วโมง ลุกเดิน ยืดเส้น 3–5 นาที', good:true, d:{fit:2,st:-2}, k:'การลุกขยับทุก 1 ชั่วโมง ลดผลเสียจากการนั่งนานต่อระบบเผาผลาญ'},
+       {t:'นั่งยาว สั่งของกินมาส่งที่โต๊ะ', good:false, d:{w:1,sg:2,fit:-3,st:3}, k:'พฤติกรรมเนือยนิ่งนาน ๆ สัมพันธ์กับโรคอ้วน เบาหวาน และโรคหัวใจ'}]},
+  { y:4, e:'🏃', q:'ว่างเย็นวันศุกร์ เพื่อนชวนไปวิ่ง/เตะบอล',
+    a:[{t:'ไปด้วย! ทำเป็นกิจกรรมประจำทุกสัปดาห์', good:true, d:{fit:6,w:-.8,bp:-2,sg:-2,st:-4}, k:'การออกกำลังกายสม่ำเสมอช่วยลดความดัน ปรับน้ำตาล และลดความเครียด'},
+       {t:'ไม่ไปดีกว่า นอนดูซีรีส์ต่อ', good:false, d:{fit:-2,w:.4}, k:'เวลาหน้าจอมาก ๆ มักมาคู่กับการนั่งนานและกินขนมจุบจิบ'}]},
+  { y:4, e:'🩺', q:'คณะจัดตรวจสุขภาพฟรีสำหรับนักศึกษาปี 4',
+    a:[{t:'ไม่ไป ยังหนุ่มสาว แข็งแรงดี', good:false, d:{st:1}, k:'โรค NCD ระยะแรกมักไม่มีอาการ ความดันสูงหรือน้ำตาลสูงอาจรู้ได้จากการตรวจเท่านั้น'},
+       {t:'ไปตรวจ วัดความดัน ชั่งน้ำหนัก ดูรอบเอว', good:true, d:{st:-1}, k:'ควรตรวจคัดกรองเป็นประจำ รอบเอวไม่ควรเกิน “ส่วนสูง ÷ 2”'}]},
+];
+
+/* ค่าเริ่มต้น */
+const BASE = { w:60, bp:112, sg:85, st:30, fit:60 };
+const HEIGHT = 1.68; // ใช้คำนวณ BMI ของตัวละคร
+const FUTURE_MULT = 3; // ผลสะสมในอีก 20 ปี = แนวโน้ม 4 ปี × ตัวคูณนี้ + ผลของอายุ
+
+const MP_VER = '0.10.14';
+const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}/vision_bundle.mjs`;
+const MP_WASM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}/wasm`;
+const FACE_MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+
+const TILT_ON = 14, TILT_OFF = 7, HOLD_MS = 900;
+
+/* ========================================================== */
+const $ = id => document.getElementById(id);
+let face=null, demo=false, idx=0, s={...BASE}, hist=[], snap={}, locked=false, order=[];
+let baseline=0, calibSamples=[], swap=false, holdSide=-1, holdStart=0, needNeutral=true, lastVT=-1, name='';
+
+function show(id){ document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id===id)); window.scrollTo(0,0); }
+if (location.protocol==='file:') warn('เปิดไฟล์โดยตรง (file://) เบราว์เซอร์อาจไม่อนุญาตให้ใช้กล้อง — เปิดผ่าน GitHub Pages / https:// หรือ localhost');
+function warn(m){ const w=$('warn'); w.style.display='block'; w.innerHTML='⚠️ '+m; }
+
+$('btn-cam').onclick = async () => {
+  name=$('pname').value.trim(); demo=false; show('s-loading');
+  try {
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'},audio:false});
+    const v=$('video'); v.srcObject=stream; await v.play();
+    $('load-msg').textContent='กำลังโหลดระบบตรวจจับใบหน้า…';
+    const { FaceLandmarker, FilesetResolver } = await import(MP_URL);
+    const fs = await FilesetResolver.forVisionTasks(MP_WASM);
+    const o = d => ({ baseOptions:{modelAssetPath:FACE_MODEL, delegate:d}, runningMode:'VIDEO', numFaces:1 });
+    try { face=await FaceLandmarker.createFromOptions(fs,o('GPU')); } catch { face=await FaceLandmarker.createFromOptions(fs,o('CPU')); }
+    startGame(); calibrate(); requestAnimationFrame(loop);
+  } catch(err){
+    console.error(err); show('s-start');
+    let m='เปิดกล้องหรือโหลดระบบไม่สำเร็จ (ตรวจสอบอินเทอร์เน็ต)';
+    if (err&&err.name==='NotAllowedError') m='ไม่ได้รับอนุญาตให้ใช้กล้อง — กดไอคอนกล้องที่แถบที่อยู่เว็บแล้วเลือก “อนุญาต”';
+    else if (err&&err.name==='NotFoundError') m='ไม่พบกล้องในเครื่องนี้';
+    else if (err&&err.name==='NotReadableError') m='กล้องถูกโปรแกรมอื่นใช้อยู่ (เช่น Zoom/Teams)';
+    else if (!window.isSecureContext) m='ต้องเปิดผ่าน https:// หรือ localhost จึงจะใช้กล้องได้';
+    warn(m+'<br>หรือเลือก “เล่นด้วยเมาส์/คีย์บอร์ด” ไปก่อนได้');
+  }
+};
+$('btn-demo').onclick = () => { name=$('pname').value.trim(); demo=true; $('video').style.display='none'; $('cam-demo').style.display='flex'; $('tilt').style.display='none'; $('btn-calib').style.display='none'; $('btn-swap').style.display='none'; startGame(); };
+$('btn-calib').onclick = () => calibrate();
+$('btn-swap').onclick = () => { swap=!swap; $('btn-swap').textContent = swap?'⇄ สลับแล้ว':'⇄ สลับซ้าย-ขวา'; };
+function calibrate(){ calibSamples=[]; baseline=null; $('tilt').textContent='🎯 ตั้งหัวตรง… กำลังตั้งค่า'; }
+
+/* ---------- เกม ---------- */
+function startGame(){
+  idx=0; s={...BASE}; hist=[]; snap={start:{...BASE}};
+  // สุ่มว่าตัวเลือกที่ดีอยู่ซ้ายหรือขวา (ภายในข้อ)
+  order = SCENES.map(()=>Math.random()<.5?[0,1]:[1,0]);
+  show('s-play'); renderMeters(); renderScene();
+}
+function renderScene(){
+  const sc=SCENES[idx], o=order[idx];
+  $('progress').innerHTML = SCENES.map((_,i)=>`<span class="${i<idx?'done':i===idx?'cur':''}"></span>`).join('');
+  $('year').textContent=`ปี ${sc.y} · เหตุการณ์ ${idx+1}/${SCENES.length}`;
+  $('emo').textContent=sc.e; $('q').textContent=sc.q;
+  $('t0').textContent=sc.a[o[0]].t; $('t1').textContent=sc.a[o[1]].t;
+  ['c0','c1'].forEach(c=>$(c).classList.remove('act')); $('f0').style.width=$('f1').style.width='0';
+  $('fb').className='feedback'; $('fb').innerHTML='';
+  locked=false; needNeutral=true; holdSide=-1;
+}
+$('c0').onclick=()=>choose(0); $('c1').onclick=()=>choose(1);
+document.addEventListener('keydown',e=>{
+  if (!$('s-play').classList.contains('on')) return;
+  if (e.key==='ArrowLeft') choose(0); else if (e.key==='ArrowRight') choose(1);
+});
+function choose(side){
+  if (locked) return; locked=true;
+  const sc=SCENES[idx], a=sc.a[order[idx][side]];
+  $('c'+side).classList.add('act'); $('f'+side).style.width='100%';
+  for (const k in a.d) s[k]+=a.d[k];
+  s.st=clamp(s.st,0,100); s.fit=clamp(s.fit,0,100);
+  hist.push({y:sc.y,q:sc.q,t:a.t,good:a.good,k:a.k});
+  const fb=$('fb'); fb.className='feedback '+(a.good?'good':'bad');
+  fb.innerHTML=(a.good?'✅ ทางเลือกที่ดีต่อสุขภาพ! ':'⚠️ ระวังนะ! ')+a.k;
+  renderMeters();
+  setTimeout(()=>{
+    idx++;
+    if (idx>=SCENES.length) return endGame();
+    renderScene();
+  }, 3800);
+}
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+/* ---------- มาตรวัด ---------- */
+const bmi = st => st.w/(HEIGHT*HEIGHT);
+function lvlColor(p){ return p<34?'#22c55e':p<67?'#f59e0b':'#ef4444'; }
+function renderMeters(){
+  const b=bmi(s);
+  const items=[
+    ['⚖️ น้ำหนัก', `${s.w.toFixed(1)} กก. (BMI ${b.toFixed(1)})`, clamp((b-18.5)/(30-18.5)*100,0,100)],
+    ['❤️ ความดัน', `${Math.round(s.bp)} mmHg`, clamp((s.bp-110)/(140-110)*100,0,100)],
+    ['🩸 น้ำตาล', `${Math.round(s.sg)} mg/dL`, clamp((s.sg-80)/(126-80)*100,0,100)],
+    ['😵 ความเครียด', `${Math.round(s.st)}/100`, s.st],
+    ['💪 ความฟิต', `${Math.round(s.fit)}/100`, 100-s.fit],
+  ];
+  $('meters').innerHTML = items.map(([l,v,p])=>`<div class="meter"><div class="lb"><span>${l}</span><b>${v}</b></div><div class="tr"><i style="width:${l.includes('ฟิต')?100-p:Math.max(p,3)}%;background:${lvlColor(p)}"></i></div></div>`).join('');
+  $('avatar-now').innerHTML = avatar(s,0,180);
+}
+
+/* ---------- ตัวละคร (SVG) ---------- */
+function avatar(st, age, size=200){
+  const b=bmi(st);
+  const bw = clamp(36 + (b-21)*5, 30, 80);      // ความกว้างลำตัว
+  const fw = clamp(30 + (b-21)*1.8, 27, 42);    // ความกว้างหน้า
+  const stress=st.st, fit=st.fit;
+  const flush = clamp((st.bp-115)/30,0,1);
+  const skin = mix('#f6cfa5','#ef9a7a',flush);
+  const hair = age>=2 ? (stress>55||fit<40?'#a3a3a3':'#6b5b4b') : '#2f2a26';
+  const mouth = stress>65 ? 'M88 92 Q100 84 112 92' : stress>45 ? 'M88 90 L112 90' : 'M88 88 Q100 98 112 88';
+  const shirt = fit>60?'#4f46e5':fit>35?'#64748b':'#78716c';
+  const slouch = fit<35? 6:0;
+  let extra='';
+  if (age>=2){ extra += `<path d="M84 72 q4 3 8 0 M108 72 q4 3 8 0" stroke="#b45309" stroke-width="1.5" fill="none" opacity=".6"/>`
+                     + `<path d="M80 60 q20 -6 40 0" stroke="#b45309" stroke-width="1.2" fill="none" opacity=".5"/>`; }
+  if (stress>60) extra += `<path d="M${100+fw-4} 58 q5 8 0 12 q-5 -4 0 -12" fill="#60a5fa"/>`;
+  const cap = age===1 ? `<path d="M70 40 L100 28 L130 40 L100 52 Z" fill="#111827"/><rect x="96" y="40" width="8" height="10" fill="#111827"/><path d="M128 40 v14" stroke="#facc15" stroke-width="2"/>` : '';
+  return `<svg viewBox="0 0 200 230" width="${size}" height="${size*1.15}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="100" cy="222" rx="${bw+12}" ry="6" fill="#000" opacity=".08"/>
+    <g transform="translate(0 ${slouch})">
+      <path d="M${100-bw} 215 Q${100-bw} 125 100 122 Q${100+bw} 125 ${100+bw} 215 Z" fill="${shirt}"/>
+      <rect x="92" y="105" width="16" height="22" fill="${skin}"/>
+      <ellipse cx="100" cy="75" rx="${fw}" ry="36" fill="${skin}"/>
+      <path d="M${100-fw} 70 Q${100-fw} 34 100 36 Q${100+fw} 34 ${100+fw} 70 Q${100+fw-6} 50 100 52 Q${100-fw+6} 50 ${100-fw} 70 Z" fill="${hair}"/>
+      <circle cx="88" cy="74" r="3.5" fill="#1f2937"/><circle cx="112" cy="74" r="3.5" fill="#1f2937"/>
+      ${stress>65?'<path d="M82 66 l10 3 M118 66 l-10 3" stroke="#1f2937" stroke-width="2"/>':''}
+      <path d="${mouth}" stroke="#7c2d12" stroke-width="3" fill="none" stroke-linecap="round"/>
+      ${flush>.4?`<circle cx="80" cy="86" r="5" fill="#ef4444" opacity="${flush*.5}"/><circle cx="120" cy="86" r="5" fill="#ef4444" opacity="${flush*.5}"/>`:''}
+      ${extra}${cap}
+    </g></svg>`;
+}
+function mix(a,b,t){ const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16)); const A=p(a),B=p(b); return '#'+A.map((x,i)=>Math.round(x+(B[i]-x)*t).toString(16).padStart(2,'0')).join(''); }
+
+/* ---------- จบเกม ---------- */
+function endGame(){
+  const grad={...s};
+  const fut={};
+  // แนวโน้ม 4 ปีต่อเนื่องอีก 20 ปี + ผลของอายุที่เพิ่มขึ้น
+  fut.w  = BASE.w  + (grad.w-BASE.w)*FUTURE_MULT + 4;
+  fut.bp = BASE.bp + (grad.bp-BASE.bp)*FUTURE_MULT + 6;
+  fut.sg = BASE.sg + (grad.sg-BASE.sg)*FUTURE_MULT + 5;
+  fut.st = clamp(BASE.st + (grad.st-BASE.st)*1.5, 0, 100);
+  fut.fit= clamp(BASE.fit + (grad.fit-BASE.fit)*FUTURE_MULT - 10, 0, 100);
+  $('av-start').innerHTML=avatar(BASE,0,170);
+  $('av-grad').innerHTML=avatar(grad,1,170);
+  $('av-future').innerHTML=avatar(fut,2,170);
+  const good=hist.filter(h=>h.good).length;
+  $('end-title').textContent = `🔮 ${name||'คุณ'}ในอีก 20 ปี`;
+  const b=bmi(fut);
+  const lv=(x,a,c)=>x<a?['lo','ต่ำ']:x<c?['md','ปานกลาง']:['hi','สูง'];
+  const smoke = hist.some(h=>h.q.includes('บุหรี่')&&!h.good);
+  const R=[
+    ['⚖️ โรคอ้วน', ...lv(b,23,27.5), `BMI ≈ ${b.toFixed(1)}`],
+    ['❤️ ความดันโลหิตสูง', ...lv(fut.bp,125,140), `≈ ${Math.round(fut.bp)} mmHg`],
+    ['🩸 เบาหวาน', ...lv(fut.sg,100,126), `น้ำตาล ≈ ${Math.round(fut.sg)} mg/dL`],
+    ['💔 โรคหัวใจและหลอดเลือด', ...(()=>{ let sc=(b>=27.5)+(fut.bp>=135)+(fut.sg>=110)+(fut.fit<30)+smoke*2; return sc>=3?['hi','สูง']:sc>=1?['md','ปานกลาง']:['lo','ต่ำ']; })(), smoke?'มีการสูบบุหรี่ไฟฟ้า':'ประเมินรวมทุกปัจจัย'],
+  ];
+  $('risk').innerHTML = R.map(([n,c,t,d])=>`<div class="${c}">${n}<br><span style="font-size:22px">${t}</span><br><span class="small" style="font-weight:400">${d}</span></div>`).join('');
+  $('end-msg').innerHTML = `คุณเลือกทางที่ดีต่อสุขภาพ <b>${good}/${SCENES.length}</b> ข้อ — ` +
+    (good>=10?'ยอดเยี่ยม! นิสัยแบบนี้คือการลงทุนสุขภาพระยะยาว 🌟':good>=7?'ดีแล้ว แต่ยังมีบางพฤติกรรมที่ถ้าทำซ้ำทุกวันจะสะสมเป็นความเสี่ยง':'การเลือกเล็ก ๆ ที่ทำซ้ำทุกวัน สะสมเป็นความเสี่ยงโรค NCD ได้ — ข่าวดีคือเริ่มเปลี่ยนได้ตั้งแต่วันนี้');
+  $('log').innerHTML = hist.map(h=>`<tr><td>${h.y}</td><td>${h.q}</td><td>${h.good?'✅':'⚠️'} ${h.t}</td><td class="small">${h.k}</td></tr>`).join('');
+  show('s-end');
+}
+$('btn-replay').onclick=()=>{ startGame(); };
+
+/* ---------- ตรวจจับการเอียงหัว ---------- */
+function loop(){
+  requestAnimationFrame(loop);
+  if (demo||!face) return;
+  const v=$('video'); if (v.readyState<2||v.currentTime===lastVT) return; lastVT=v.currentTime;
+  const r=face.detectForVideo(v,performance.now());
+  const lm=r.faceLandmarks&&r.faceLandmarks[0];
+  if (!lm){ $('tilt').textContent='🙂 มองไม่เห็นใบหน้า'; resetHold(); return; }
+  const W=v.videoWidth, H=v.videoHeight;
+  // พิกัดแบบกระจก (ให้ตรงกับภาพที่ผู้เล่นเห็น)
+  const pL={x:(1-lm[263].x)*W, y:lm[263].y*H}, pR={x:(1-lm[33].x)*W, y:lm[33].y*H};
+  let a=Math.atan2(pR.y-pL.y, pR.x-pL.x)*180/Math.PI;
+  if (baseline===null){ calibSamples.push(a); if (calibSamples.length>=20){ baseline=calibSamples.reduce((x,y)=>x+y,0)/calibSamples.length; } return; }
+  a-=baseline; if (swap) a=-a;
+  if (!$('s-play').classList.contains('on')||locked){ $('tilt').textContent=tiltText(a); return; }
+  if (needNeutral){ $('tilt').textContent = Math.abs(a)<TILT_OFF ? '✅ พร้อม — เอียงซ้ายหรือขวา' : '↕️ ตั้งหัวตรงก่อน'; if (Math.abs(a)<TILT_OFF) needNeutral=false; return; }
+  const side = a<-TILT_ON?0 : a>TILT_ON?1 : -1;
+  $('tilt').textContent=tiltText(a);
+  if (side===-1){ resetHold(); return; }
+  if (side!==holdSide){ resetHold(); holdSide=side; holdStart=performance.now(); $('c'+side).classList.add('act'); }
+  const p=Math.min(1,(performance.now()-holdStart)/HOLD_MS);
+  $('f'+side).style.width=(p*100)+'%';
+  if (p>=1) choose(side);
+}
+function resetHold(){ if (holdSide>=0 && !locked){ $('c'+holdSide).classList.remove('act'); $('f'+holdSide).style.width='0'; } holdSide=-1; }
+function tiltText(a){ return a<-TILT_ON?'⬅ เอียงซ้าย':a>TILT_ON?'เอียงขวา ➡':`ตรง (${a.toFixed(0)}°)`; }
+</script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เผาผลาญชานม | เกมเรียนรู้ NCD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#fff7ed;--card:#fff;--ink:#1f2937;--muted:#6b7280;--pri:#ea580c;--pri2:#f97316;--ok:#16a34a;--warn:#dc2626;--line:#fed7aa}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Prompt',system-ui,sans-serif;background:linear-gradient(160deg,#fff7ed,#ffedd5);color:var(--ink);min-height:100vh}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px}
+  .screen{display:none}.screen.on{display:block}
+  h1{font-size:clamp(28px,4vw,44px);margin:.2em 0;color:var(--pri)}
+  h2{margin:.3em 0}
+  .card{background:var(--card);border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(234,88,12,.12);margin-bottom:16px}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .btn{font-family:inherit;font-size:18px;font-weight:600;border:0;border-radius:14px;padding:12px 22px;cursor:pointer;background:var(--pri);color:#fff;transition:.15s}
+  .btn:hover{background:var(--pri2);transform:translateY(-1px)}
+  .btn.ghost{background:#fff;color:var(--pri);border:2px solid var(--pri)}
+  .btn.green{background:var(--ok)}
+  .btn:disabled{opacity:.5;cursor:default;transform:none}
+  label{font-weight:600}
+  input,select{font-family:inherit;font-size:17px;padding:8px 12px;border-radius:10px;border:2px solid var(--line)}
+  .opt{display:flex;gap:10px;flex-wrap:wrap}
+  .opt button{font-family:inherit;font-size:16px;padding:10px 16px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer}
+  .opt button.sel{border-color:var(--pri);background:#fff1e6;font-weight:600}
+  .muted{color:var(--muted)}
+  .small{font-size:14px}
+  .menus{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
+  .menu{background:#fff;border:3px solid transparent;border-radius:16px;padding:12px;text-align:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .menu .e{font-size:44px}.menu .n{font-weight:600}.menu .k{color:var(--pri);font-weight:800}
+  .menu.hl{border-color:var(--pri);transform:scale(1.05);transition:.08s}
+  .bigpick{font-size:80px;text-align:center}
+  .stage{position:relative;width:100%;aspect-ratio:16/9;background:#111;border-radius:20px;overflow:hidden}
+  .stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+  .hud{position:absolute;inset:0;pointer-events:none;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7)}
+  .hud .tl{position:absolute;top:14px;left:16px;font-size:22px;font-weight:600;background:rgba(0,0,0,.45);padding:8px 14px;border-radius:12px}
+  .hud .tr{position:absolute;top:14px;right:16px;font-size:40px;font-weight:800;background:rgba(0,0,0,.45);padding:4px 16px;border-radius:12px}
+  .hud .reps{position:absolute;right:16px;top:90px;text-align:center;background:rgba(234,88,12,.85);border-radius:18px;padding:8px 18px}
+  .hud .reps b{display:block;font-size:64px;line-height:1}
+  .hud .msg{position:absolute;bottom:80px;left:0;right:0;text-align:center;font-size:24px;font-weight:600}
+  .hud .bar{position:absolute;bottom:18px;left:16px;right:16px;height:40px;background:rgba(255,255,255,.25);border-radius:20px;overflow:hidden}
+  .hud .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#facc15,#f97316);transition:width .3s}
+  .hud .bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:18px}
+  .count{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:160px;font-weight:800;color:#fff;background:rgba(0,0,0,.35);text-shadow:0 4px 20px rgba(0,0,0,.6)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .stat{background:#fff7ed;border-radius:16px;padding:14px;text-align:center}
+  .stat b{display:block;font-size:34px;color:var(--pri)}
+  .tip{background:#ecfdf5;border-left:6px solid var(--ok);padding:14px 16px;border-radius:12px;margin-top:12px}
+  .warnbox{background:#fef2f2;border-left:6px solid var(--warn);padding:12px 16px;border-radius:12px;margin:12px 0;display:none}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #fde2c8;text-align:left}
+  th{background:#fff1e6}
+  .spinner{width:56px;height:56px;border:6px solid var(--line);border-top-color:var(--pri);border-radius:50%;animation:sp 1s linear infinite;margin:20px auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  a.back{color:var(--pri);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== หน้าเริ่ม ===== -->
+<section id="s-start" class="screen on">
+  <a class="back" href="index.html">← หน้ารวมเกม</a>
+  <h1>🧋 เผาผลาญชานม</h1>
+  <div class="card">
+    <p style="font-size:18px;margin-top:0">เกมจะสุ่มเมนูที่นักศึกษากินบ่อย แล้วให้คุณ <b>ออกกำลังกายหน้ากล้อง</b> เพื่อเผาผลาญพลังงานของเมนูนั้น กล้องจะนับจำนวนครั้งให้อัตโนมัติ<br>
+    มาดูกันว่าเครื่องดื่มแก้วเดียวต้องออกแรงมากแค่ไหน!</p>
+    <div class="row" style="margin:14px 0">
+      <label>ท่าออกกำลังกาย</label>
+      <div class="opt" id="opt-ex">
+        <button data-v="squat" class="sel">🏋️ สควอท</button>
+        <button data-v="jack">🤸 กระโดดตบ</button>
+      </div>
+    </div>
+    <div class="row" style="margin:14px 0">
+      <label>เวลาต่อรอบ</label>
+      <div class="opt" id="opt-time">
+        <button data-v="30">30 วินาที</button>
+        <button data-v="45" class="sel">45 วินาที</button>
+        <button data-v="60">60 วินาที</button>
+      </div>
+    </div>
+    <div class="row" style="margin:14px 0">
+      <label for="weight">น้ำหนักตัว (กก.)</label>
+      <input id="weight" type="number" min="30" max="150" value="60" style="width:110px">
+      <span class="muted small">ใช้คำนวณพลังงานที่เผาผลาญ (ประมาณการ)</span>
+    </div>
+    <div class="warnbox" id="warn-proto"></div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn" id="btn-cam">📷 เปิดกล้องและเริ่มเล่น</button>
+      <button class="btn ghost" id="btn-demo">⌨️ โหมดสาธิต (ไม่ใช้กล้อง)</button>
+    </div>
+    <p class="muted small" style="margin-bottom:0">💡 ยืนห่างกล้องประมาณ 2 เมตร ให้กล้องเห็นตั้งแต่หัวถึงเข่า เปิดไฟให้สว่าง · ภาพจากกล้องประมวลผลในเครื่องเท่านั้น ไม่ถูกบันทึกหรือส่งออก<br>
+    โหมดสาธิต: กด <b>Spacebar</b> แทนการออกกำลัง 1 ครั้ง (เหมาะกับการอธิบายหน้าชั้น)</p>
+  </div>
+</section>
+
+<!-- ===== โหลดโมเดล ===== -->
+<section id="s-loading" class="screen">
+  <div class="card" style="text-align:center">
+    <div class="spinner"></div>
+    <h2 id="load-msg">กำลังเปิดกล้องและโหลดระบบตรวจจับท่าทาง…</h2>
+    <p class="muted">ครั้งแรกอาจใช้เวลา 10–30 วินาที</p>
+  </div>
+</section>
+
+<!-- ===== เลือกเมนู ===== -->
+<section id="s-menu" class="screen">
+  <h1>รอบที่ <span id="round-no">1</span>: วันนี้กินอะไรดี?</h1>
+  <div class="card">
+    <div class="row">
+      <button class="btn" id="btn-spin">🎲 สุ่มเมนู</button>
+      <span class="muted">หรือคลิกเลือกเมนูเองด้านล่าง</span>
+      <span style="flex:1"></span>
+      <button class="btn ghost" id="btn-summary" style="display:none">📊 สรุปผลทั้งหมด</button>
+    </div>
+    <div class="menus" id="menus"></div>
+  </div>
+</section>
+
+<!-- ===== เล่น ===== -->
+<section id="s-play" class="screen">
+  <div class="stage" id="stage">
+    <video id="video" playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <div class="hud">
+      <div class="tl" id="hud-menu"></div>
+      <div class="tr" id="hud-time">45</div>
+      <div class="reps"><b id="hud-reps">0</b><span id="hud-exname">ครั้ง</span></div>
+      <div class="msg" id="hud-msg"></div>
+      <div class="bar"><i id="hud-bar"></i><span id="hud-bartext"></span></div>
+    </div>
+    <div class="count" id="count">3</div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button class="btn ghost" id="btn-stop">⏹ จบรอบนี้</button>
+    <span class="muted small" id="demo-hint" style="display:none">โหมดสาธิต: กด Spacebar = 1 ครั้ง</span>
+  </div>
+</section>
+
+<!-- ===== ผลรอบ ===== -->
+<section id="s-result" class="screen">
+  <h1 id="res-title">ผลการเผาผลาญ</h1>
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><b id="r-reps">0</b>จำนวนครั้งที่ทำได้</div>
+      <div class="stat"><b id="r-kcal">0</b>kcal ที่เผาไป</div>
+      <div class="stat"><b id="r-pct">0%</b>ของพลังงานในเมนู</div>
+      <div class="stat"><b id="r-left">0</b>ครั้งที่ต้องทำเพิ่ม</div>
+    </div>
+    <h2 style="margin-top:20px">ถ้าจะเผาผลาญ <span id="r-menu"></span> ให้หมด ต้อง…</h2>
+    <div class="stats">
+      <div class="stat"><b id="r-total">0</b>ครั้ง (<span id="r-exname2"></span>)</div>
+      <div class="stat"><b id="r-walk">0</b>นาที เดินเร็ว</div>
+      <div class="stat"><b id="r-jog">0</b>นาที วิ่งเหยาะ</div>
+    </div>
+    <div class="tip" id="r-tip"></div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn" id="btn-next">🔁 เล่นเมนูถัดไป</button>
+      <button class="btn ghost" id="btn-summary2">📊 สรุปผลทั้งหมด</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== สรุป ===== -->
+<section id="s-summary" class="screen">
+  <h1>📊 สรุปผลการเล่น</h1>
+  <div class="card">
+    <table><thead><tr><th>รอบ</th><th>เมนู</th><th>พลังงานในเมนู</th><th>ทำได้</th><th>เผาไป</th><th>%</th></tr></thead><tbody id="sum-body"></tbody></table>
+    <p id="sum-total" style="font-size:18px;font-weight:600"></p>
+  </div>
+  <div class="card">
+    <h2>💬 คำถามชวนคิด (สำหรับอภิปรายในชั้นเรียน)</h2>
+    <ol style="font-size:17px;line-height:1.8">
+      <li>เมนูไหนที่ต้องออกแรงมากที่สุด และคุณกินเมนูนั้นบ่อยแค่ไหนต่อสัปดาห์?</li>
+      <li>“กินแล้วไปออกกำลังเอา” ทำได้จริงไหม เมื่อเทียบกับการลดหวาน ลดหวานน้อย หรือเปลี่ยนเมนู?</li>
+      <li>ถ้าสั่งชานม “หวานน้อย” หรือ “ไม่ใส่ไข่มุก” พลังงานจะลดลงอย่างไร?</li>
+      <li>พลังงานส่วนเกินที่สะสมทุกวันเชื่อมโยงกับโรค NCD ใดบ้าง (อ้วน เบาหวาน ความดัน ไขมันในเลือด หัวใจ)?</li>
+      <li>นอกจากออกกำลังกายเป็นครั้งคราว นักศึกษาจะเพิ่มการขยับร่างกายในชีวิตประจำวันได้อย่างไร?</li>
+    </ol>
+    <p class="muted small">หมายเหตุ: ค่าพลังงานของเมนูและการเผาผลาญเป็นค่าประมาณเพื่อการเรียนรู้ ขึ้นกับขนาด สูตร และร่างกายของแต่ละคน (คำนวณจากค่า MET: kcal/นาที = MET × 3.5 × น้ำหนัก ÷ 200)</p>
+    <div class="row">
+      <button class="btn" id="btn-again">🔁 เล่นต่อ</button>
+      <button class="btn ghost" id="btn-restart">🏠 เริ่มใหม่ทั้งหมด</button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script type="module">
+/* ==========================================================
+   ตั้งค่า — อาจารย์แก้ไขเมนู/ค่าพลังงานได้ที่นี่
+   kcal = ค่าประมาณ (ควรตรวจสอบกับแหล่งข้อมูลโภชนาการก่อนใช้สอน)
+   ========================================================== */
+const MENUS = [
+  { e:'🧋', n:'ชานมไข่มุก (แก้วใหญ่ หวานปกติ)', kcal:450, tip:'ชานมไข่มุก 1 แก้วอาจมีน้ำตาลเกินปริมาณที่แนะนำต่อวัน (ไม่ควรเกิน 6 ช้อนชา) ลองสั่ง “หวานน้อย” หรือไม่ใส่ไข่มุก จะลดพลังงานได้มาก' },
+  { e:'🥤', n:'ชาไทยเย็น', kcal:280, tip:'นมข้นหวานและน้ำตาลคือแหล่งพลังงานหลัก ลองลดความหวานลงครึ่งหนึ่ง' },
+  { e:'☕', n:'กาแฟเย็น (หวานมัน)', kcal:250, tip:'กาแฟดำหรืออเมริกาโน่ไม่ใส่น้ำตาลแทบไม่มีพลังงาน ส่วนที่เพิ่มมาคือครีมเทียม นม และน้ำเชื่อม' },
+  { e:'🥫', n:'น้ำอัดลม 1 กระป๋อง', kcal:140, tip:'พลังงานเกือบทั้งหมดมาจากน้ำตาล ไม่มีสารอาหารอื่น ดื่มน้ำเปล่าแทนได้ไหม?' },
+  { e:'🍫', n:'โกโก้เย็น', kcal:300, tip:'เครื่องดื่มเย็นแบบชงหวาน ๆ ส่วนใหญ่ให้พลังงาน 200–400 kcal ต่อแก้ว' },
+  { e:'🍗', n:'ไก่ทอด 2 ชิ้น', kcal:500, tip:'ของทอดมีไขมันสูง ลองเลือกไก่ย่าง/ไก่อบ หรือลอกหนังออก' },
+  { e:'🍟', n:'เฟรนช์ฟรายส์ (กลาง)', kcal:350, tip:'นอกจากไขมันแล้วยังมีโซเดียม (เค็ม) ซึ่งสัมพันธ์กับโรคความดันโลหิตสูง' },
+  { e:'🍜', n:'บะหมี่กึ่งสำเร็จรูป 1 ซอง', kcal:300, tip:'ซองเครื่องปรุงมีโซเดียมสูง ใส่ผงปรุงครึ่งซองและไม่ซดน้ำจนหมดช่วยลดเค็มได้' },
+  { e:'🥓', n:'หมูกระทะ 1 มื้อ', kcal:1000, tip:'มื้อบุฟเฟต์มักกินเกินโดยไม่รู้ตัว ทั้งไขมันจากหมูสามชั้นและน้ำจิ้มหวาน ๆ เพิ่มผักและลดหมูติดมัน' },
+  { e:'🍰', n:'เค้กช็อกโกแลต 1 ชิ้น', kcal:350, tip:'ของหวานกินได้บ้าง แต่ควรเป็นครั้งคราว ไม่ใช่ทุกวันหลังมื้ออาหาร' },
+  { e:'🍛', n:'ข้าวมันไก่ 1 จาน', kcal:600, tip:'ข้าวมันหุงด้วยน้ำมันไก่ ลองเปลี่ยนเป็นข้าวสวยกับไก่ต้ม ลดพลังงานได้' },
+  { e:'🧇', n:'ปังปิ้งนมข้นหวาน', kcal:400, tip:'ขนมปังขาว เนย และนมข้นหวาน = แป้ง ไขมัน และน้ำตาลครบชุด' },
+];
+
+const EXERCISES = {
+  squat: { name:'สควอท', unit:'ครั้ง', met:5.0, secPerRep:2.5 },
+  jack:  { name:'กระโดดตบ', unit:'ครั้ง', met:8.0, secPerRep:1.2 },
+};
+const MET_WALK = 4.3;  // เดินเร็ว ~5.6 กม./ชม.
+const MET_JOG  = 7.0;  // วิ่งเหยาะ
+
+const MP_VER = '0.10.14';
+const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}/vision_bundle.mjs`;
+const MP_WASM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}/wasm`;
+const POSE_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+
+/* ========================================================== */
+const $ = id => document.getElementById(id);
+const state = { ex:'squat', secs:45, weight:60, demo:false, round:0, history:[], menu:null };
+let pose = null, stream = null, rafId = null, playing = false;
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); window.scrollTo(0,0); }
+function optGroup(id, key, cast){
+  $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $(id).querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel'); state[key]=cast(b.dataset.v);
+  });
+}
+optGroup('opt-ex','ex',String);
+optGroup('opt-time','secs',Number);
+
+if (location.protocol === 'file:') {
+  const w=$('warn-proto'); w.style.display='block';
+  w.innerHTML='⚠️ เปิดไฟล์โดยตรง (file://) เบราว์เซอร์อาจไม่อนุญาตให้ใช้กล้อง — กรุณาเปิดผ่าน GitHub Pages / เว็บเซิร์ฟเวอร์ https:// หรือ localhost';
+}
+
+const kcalPerMin = met => met * 3.5 * state.weight / 200;
+const kcalPerRep = () => { const ex=EXERCISES[state.ex]; return kcalPerMin(ex.met) * ex.secPerRep / 60; };
+
+/* ---------- เริ่ม ---------- */
+$('btn-cam').onclick = async () => {
+  readWeight(); state.demo=false; show('s-loading');
+  try {
+    $('load-msg').textContent='กำลังเปิดกล้อง…';
+    stream = await navigator.mediaDevices.getUserMedia({ video:{ width:{ideal:1280}, height:{ideal:720}, facingMode:'user' }, audio:false });
+    const v=$('video'); v.srcObject=stream; await v.play();
+    $('load-msg').textContent='กำลังโหลดระบบตรวจจับท่าทาง…';
+    const { PoseLandmarker, FilesetResolver } = await import(MP_URL);
+    const fileset = await FilesetResolver.forVisionTasks(MP_WASM);
+    const opts = d => ({ baseOptions:{ modelAssetPath:POSE_MODEL, delegate:d }, runningMode:'VIDEO', numPoses:1 });
+    try { pose = await PoseLandmarker.createFromOptions(fileset, opts('GPU')); }
+    catch { pose = await PoseLandmarker.createFromOptions(fileset, opts('CPU')); }
+    goMenu();
+  } catch (err) {
+    console.error(err);
+    let m='เปิดกล้องหรือโหลดระบบไม่สำเร็จ';
+    if (err && err.name==='NotAllowedError') m='ไม่ได้รับอนุญาตให้ใช้กล้อง — กดไอคอนกล้องที่แถบที่อยู่เว็บแล้วเลือก “อนุญาต”';
+    else if (err && err.name==='NotFoundError') m='ไม่พบกล้องในเครื่องนี้';
+    else if (err && (err.name==='NotReadableError')) m='กล้องถูกโปรแกรมอื่นใช้อยู่ (เช่น Zoom/Teams) — ปิดโปรแกรมนั้นก่อน';
+    else if (!window.isSecureContext) m='ต้องเปิดผ่าน https:// หรือ localhost จึงจะใช้กล้องได้';
+    else m+=' (ตรวจสอบอินเทอร์เน็ต — ระบบต้องดาวน์โหลดโมเดลครั้งแรก)';
+    alertBack(m);
+  }
+};
+$('btn-demo').onclick = () => { readWeight(); state.demo=true; goMenu(); };
+function readWeight(){ const w=parseFloat($('weight').value); state.weight = (w>=30&&w<=200)?w:60; }
+function alertBack(m){ show('s-start'); const w=$('warn-proto'); w.style.display='block'; w.innerHTML='⚠️ '+m+'<br>หรือลองเล่น “โหมดสาธิต” ไปก่อนได้'; }
+
+/* ---------- เมนู ---------- */
+function goMenu(){
+  state.round++; $('round-no').textContent=state.round;
+  $('btn-summary').style.display = state.history.length? 'inline-block':'none';
+  const box=$('menus'); box.innerHTML='';
+  MENUS.forEach((m,i)=>{
+    const d=document.createElement('div'); d.className='menu'; d.dataset.i=i;
+    d.innerHTML=`<div class="e">${m.e}</div><div class="n">${m.n}</div><div class="k">≈ ${m.kcal} kcal</div>`;
+    d.onclick=()=>pickMenu(i); box.appendChild(d);
+  });
+  show('s-menu');
+}
+$('btn-spin').onclick = () => {
+  const cards=[...document.querySelectorAll('.menu')]; $('btn-spin').disabled=true;
+  const target=Math.floor(Math.random()*MENUS.length); let step=0; const total=18+target;
+  const tick=()=>{
+    cards.forEach(c=>c.classList.remove('hl')); cards[step%cards.length].classList.add('hl');
+    step++;
+    if (step<=total) setTimeout(tick, 60+step*6); else { $('btn-spin').disabled=false; setTimeout(()=>pickMenu(target),500); }
+  };
+  tick();
+};
+$('btn-summary').onclick = $('btn-summary2').onclick = () => showSummary();
+
+/* ---------- เล่น ---------- */
+let reps=0, phase='up', lastRep=0, endAt=0, timerId=null;
+function pickMenu(i){
+  state.menu=MENUS[i]; reps=0; phase='up';
+  const ex=EXERCISES[state.ex];
+  $('hud-menu').textContent=`${state.menu.e} ${state.menu.n} ≈ ${state.menu.kcal} kcal`;
+  $('hud-exname').textContent=ex.name; $('hud-reps').textContent='0'; $('hud-time').textContent=state.secs;
+  $('demo-hint').style.display=state.demo?'inline':'none';
+  updateBar(); $('hud-msg').textContent='';
+  show('s-play');
+  const c=$('canvas'); const v=$('video');
+  if (state.demo){ v.style.display='none'; c.style.display='none'; $('stage').style.background='linear-gradient(135deg,#fb923c,#ea580c)'; }
+  else { v.style.display='block'; c.style.display='block'; c.width=v.videoWidth; c.height=v.videoHeight; }
+  playing=false; loop();
+  countdown(3, ()=>{ playing=true; endAt=performance.now()+state.secs*1000; timerId=setInterval(tickTimer,200); });
+}
+function countdown(n, done){
+  const el=$('count'); el.style.display='flex'; el.textContent=n;
+  const t=setInterval(()=>{ n--; if(n>0) el.textContent=n; else if(n===0) el.textContent='เริ่ม!'; else { clearInterval(t); el.style.display='none'; done(); } },1000);
+}
+function tickTimer(){
+  const left=Math.max(0,Math.ceil((endAt-performance.now())/1000));
+  $('hud-time').textContent=left;
+  if (left<=0) endRound();
+}
+$('btn-stop').onclick=()=>endRound();
+function endRound(){
+  if (!$('s-play').classList.contains('on')) return;
+  playing=false; clearInterval(timerId); cancelAnimationFrame(rafId);
+  showResult();
+}
+function addRep(){
+  const now=performance.now(); if (now-lastRep<350) return; lastRep=now;
+  reps++; $('hud-reps').textContent=reps; updateBar();
+  const r=$('hud-reps').parentElement; r.animate([{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:250});
+}
+function updateBar(){
+  const burned=reps*kcalPerRep(); const pct=Math.min(100,burned/state.menu.kcal*100);
+  $('hud-bar').style.width=Math.max(pct,0.5)+'%';
+  $('hud-bartext').textContent=`เผาไป ${burned.toFixed(1)} / ${state.menu.kcal} kcal (${pct.toFixed(1)}%)`;
+}
+document.addEventListener('keydown',e=>{
+  if (e.code==='Space' && state.demo && playing && $('s-play').classList.contains('on')){ e.preventDefault(); addRep(); }
+});
+
+/* ---------- ตรวจจับท่า ---------- */
+let lastVT=-1;
+function loop(){
+  rafId=requestAnimationFrame(loop);
+  if (state.demo || !pose) return;
+  const v=$('video'); if (v.readyState<2 || v.currentTime===lastVT) return; lastVT=v.currentTime;
+  const res=pose.detectForVideo(v, performance.now());
+  const c=$('canvas'), ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
+  const lm=res.landmarks && res.landmarks[0];
+  if (!lm){ setMsg('🙋 ยืนให้กล้องมองเห็นทั้งตัว'); return; }
+  drawSkeleton(ctx,lm,c.width,c.height);
+  if (state.ex==='squat') detectSquat(lm,c.width,c.height); else detectJack(lm,c.width,c.height);
+}
+function setMsg(t){ const m=$('hud-msg'); if (m.textContent!==t) m.textContent=t; }
+const P=(l,w,h)=>({x:l.x*w,y:l.y*h,v:l.visibility??1});
+function ang(a,b,c){
+  const ab={x:a.x-b.x,y:a.y-b.y}, cb={x:c.x-b.x,y:c.y-b.y};
+  const d=(ab.x*cb.x+ab.y*cb.y)/(Math.hypot(ab.x,ab.y)*Math.hypot(cb.x,cb.y)||1);
+  return Math.acos(Math.max(-1,Math.min(1,d)))*180/Math.PI;
+}
+function detectSquat(lm,w,h){
+  const L={hip:P(lm[23],w,h),knee:P(lm[25],w,h),ank:P(lm[27],w,h)};
+  const R={hip:P(lm[24],w,h),knee:P(lm[26],w,h),ank:P(lm[28],w,h)};
+  const vis=s=>Math.min(s.hip.v,s.knee.v,s.ank.v);
+  const s = vis(L)>=vis(R)? L:R;
+  if (s.knee.v<0.5 || s.hip.v<0.5){ setMsg('↩️ ถอยหลังอีกนิด ให้กล้องเห็นถึงหัวเข่า'); return; }
+  let knee;
+  if (s.ank.v>=0.4) knee=ang(s.hip,s.knee,s.ank);
+  else { // ไม่เห็นข้อเท้า: ใช้ความสูงสะโพกเทียบหัวไหล่-เข่า
+    const sh=P(lm[11],w,h); const ratio=(s.hip.y-sh.y)/((s.knee.y-sh.y)||1);
+    knee = ratio>0.75 ? 90 : 170;
+  }
+  if (!playing){ setMsg('เตรียมตัว…'); return; }
+  if (phase==='up'){
+    if (knee<105){ phase='down'; setMsg('⬆️ ดีมาก! ยืนขึ้น'); }
+    else setMsg(knee<140? '⬇️ ย่อลงอีกนิด…' : '⬇️ ย่อเข่าลง');
+  } else {
+    if (knee>155){ phase='up'; addRep(); setMsg('✅ +1'); }
+  }
+}
+function detectJack(lm,w,h){
+  const nose=P(lm[0],w,h), ls=P(lm[11],w,h), rs=P(lm[12],w,h), lw=P(lm[15],w,h), rw=P(lm[16],w,h), la=P(lm[27],w,h), ra=P(lm[28],w,h);
+  if (ls.v<0.5||rs.v<0.5){ setMsg('🙋 ยืนให้กล้องเห็นไหล่และแขน'); return; }
+  const shW=Math.abs(ls.x-rs.x)||1;
+  const armsUp = lw.y<nose.y && rw.y<nose.y;
+  const armsDown = lw.y>ls.y && rw.y>rs.y;
+  const legsVis = la.v>0.4 && ra.v>0.4;
+  const feet = Math.abs(la.x-ra.x)/shW;
+  const open = armsUp && (!legsVis || feet>1.25);
+  const closed = armsDown && (!legsVis || feet<1.0);
+  if (!playing){ setMsg('เตรียมตัว…'); return; }
+  if (phase==='up'){ // ใช้ 'up' = ยืนหุบ
+    if (open){ phase='down'; setMsg('👇 หุบแขนขากลับ'); } else setMsg(legsVis?'🙌 กระโดดกางแขนขา':'🙌 ยกแขนขึ้นเหนือหัว');
+  } else if (closed){ phase='up'; addRep(); setMsg('✅ +1'); }
+}
+const BONES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28]];
+function drawSkeleton(ctx,lm,w,h){
+  ctx.lineWidth=Math.max(4,w/200); ctx.strokeStyle='rgba(250,204,21,.9)'; ctx.fillStyle='#f97316';
+  BONES.forEach(([a,b])=>{ if((lm[a].visibility??1)<.4||(lm[b].visibility??1)<.4) return; ctx.beginPath(); ctx.moveTo(lm[a].x*w,lm[a].y*h); ctx.lineTo(lm[b].x*w,lm[b].y*h); ctx.stroke(); });
+  [0,11,12,13,14,15,16,23,24,25,26,27,28].forEach(i=>{ if((lm[i].visibility??1)<.4) return; ctx.beginPath(); ctx.arc(lm[i].x*w,lm[i].y*h,Math.max(6,w/140),0,7); ctx.fill(); });
+}
+
+/* ---------- ผล ---------- */
+function showResult(){
+  const ex=EXERCISES[state.ex], m=state.menu, kpr=kcalPerRep();
+  const burned=reps*kpr, pct=burned/m.kcal*100;
+  const totalReps=Math.ceil(m.kcal/kpr), left=Math.max(0,totalReps-reps);
+  state.history.push({round:state.round, menu:m, reps, burned, pct, ex:ex.name});
+  $('res-title').textContent=`${m.e} ผลการเผาผลาญ: ${m.n}`;
+  $('r-reps').textContent=reps; $('r-kcal').textContent=burned.toFixed(1); $('r-pct').textContent=pct.toFixed(1)+'%';
+  $('r-left').textContent=left.toLocaleString('th-TH');
+  $('r-menu').textContent=m.n; $('r-total').textContent=totalReps.toLocaleString('th-TH'); $('r-exname2').textContent=ex.name;
+  $('r-walk').textContent=Math.round(m.kcal/kcalPerMin(MET_WALK)); $('r-jog').textContent=Math.round(m.kcal/kcalPerMin(MET_JOG));
+  const roundsNeeded=Math.ceil(totalReps/Math.max(reps,1));
+  $('r-tip').innerHTML=`💡 ${m.tip}`+(reps>0?`<br><br>ด้วยความเร็วรอบนี้ ต้องเล่นแบบนี้อีกประมาณ <b>${roundsNeeded.toLocaleString('th-TH')} รอบ</b> (≈ ${Math.round(roundsNeeded*state.secs/60)} นาที) ถึงจะเผาผลาญเมนูนี้หมด`:'');
+  show('s-result');
+}
+$('btn-next').onclick=()=>goMenu();
+function showSummary(){
+  const b=$('sum-body'); b.innerHTML='';
+  let tk=0, tb=0, tr=0;
+  state.history.forEach(r=>{ tk+=r.menu.kcal; tb+=r.burned; tr+=r.reps;
+    b.insertAdjacentHTML('beforeend',`<tr><td>${r.round}</td><td>${r.menu.e} ${r.menu.n}</td><td>${r.menu.kcal} kcal</td><td>${r.reps} ${r.ex}</td><td>${r.burned.toFixed(1)} kcal</td><td>${r.pct.toFixed(1)}%</td></tr>`); });
+  $('sum-total').textContent = state.history.length
+    ? `รวม: กินไป ${tk.toLocaleString('th-TH')} kcal · ออกกำลัง ${tr} ครั้ง · เผาไป ${tb.toFixed(1)} kcal (${(tb/tk*100).toFixed(1)}%)`
+    : 'ยังไม่มีผลการเล่น';
+  show('s-summary');
+}
+$('btn-again').onclick=()=>goMenu();
+$('btn-restart').onclick=()=>{ state.history=[]; state.round=0; show('s-start'); };
+</script>
+</body>
+</html>
