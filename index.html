@@ -10,7 +10,10 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:'Prompt',system-ui,sans-serif;color:#1e293b;background:linear-gradient(160deg,#fff7ed 0%,#eef2ff 100%);min-height:100vh}
   .wrap{max-width:1000px;margin:0 auto;padding:28px 20px}
-  header{text-align:center;margin-bottom:24px}
+  header{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px;text-align:left}
+  header .mascot{height:220px;filter:drop-shadow(0 8px 16px rgba(234,88,12,.25));animation:bob 3s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-8px)}}
+  @media(max-width:700px){header{flex-direction:column;text-align:center}header .mascot{height:170px}}
   header h1{font-size:clamp(30px,5vw,52px);margin:.1em 0;background:linear-gradient(90deg,#ea580c,#4f46e5);-webkit-background-clip:text;background-clip:text;color:transparent}
   header p{font-size:18px;color:#475569;margin:.3em 0}
   .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
@@ -29,8 +32,11 @@
 <body>
 <div class="wrap">
   <header>
+    <img class="mascot" src="img/mascot.webp" alt="ตัวละครนักศึกษาถือชานมไข่มุก">
+    <div>
     <h1>ขยับ-เลือก พิชิต NCDs</h1>
     <p>เกมเรียนรู้การป้องกันโรคไม่ติดต่อเรื้อรัง (NCDs) สำหรับนักศึกษา · เล่นด้วยกล้องเว็บแคม</p>
+    </div>
   </header>
 
   <div class="games">

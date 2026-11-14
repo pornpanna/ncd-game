@@ -55,6 +55,18 @@
   th{background:#fff1e6}
   .spinner{width:56px;height:56px;border:6px solid var(--line);border-top-color:var(--pri);border-radius:50%;animation:sp 1s linear infinite;margin:20px auto}
   @keyframes sp{to{transform:rotate(360deg)}}
+  .hero{display:flex;gap:18px;align-items:flex-end}
+  .hero .card{flex:1}
+  .mascot-box{position:relative;flex:0 0 240px;text-align:center}
+  .mascot-box img{width:100%;filter:drop-shadow(0 8px 16px rgba(234,88,12,.25));animation:bob 3s ease-in-out infinite}
+  .bubble{position:relative;background:#fff;border:3px solid var(--pri);border-radius:18px;padding:10px 14px;font-weight:600;margin-bottom:8px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .bubble:after{content:'';position:absolute;bottom:-12px;left:50%;margin-left:-10px;border:10px solid transparent;border-top-color:var(--pri);border-bottom:0}
+  @keyframes bob{50%{transform:translateY(-8px)}}
+  @media(max-width:800px){.hero{flex-direction:column-reverse;align-items:stretch}.mascot-box{flex-basis:auto;width:200px;margin:0 auto}}
+  .res-wrap{display:flex;gap:16px;align-items:center}
+  .res-wrap .tip{flex:1}
+  .res-wrap img{width:130px;flex:0 0 130px}
+  .hud .mini{position:absolute;left:12px;bottom:66px;width:110px;transform:scaleX(1);filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
   a.back{color:var(--pri);text-decoration:none;font-weight:600}
 </style>
 </head>
@@ -65,6 +77,7 @@
 <section id="s-start" class="screen on">
   <a class="back" href="index.html">← หน้ารวมเกม</a>
   <h1>🧋 เผาผลาญชานม</h1>
+  <div class="hero">
   <div class="card">
     <p style="font-size:18px;margin-top:0">เกมจะสุ่มเมนูที่นักศึกษากินบ่อย แล้วให้คุณ <b>ออกกำลังกายหน้ากล้อง</b> เพื่อเผาผลาญพลังงานของเมนูนั้น กล้องจะนับจำนวนครั้งให้อัตโนมัติ<br>
     มาดูกันว่าเครื่องดื่มแก้วเดียวต้องออกแรงมากแค่ไหน!</p>
@@ -95,6 +108,8 @@
     </div>
     <p class="muted small" style="margin-bottom:0">💡 ยืนห่างกล้องประมาณ 2 เมตร ให้กล้องเห็นตั้งแต่หัวถึงเข่า เปิดไฟให้สว่าง · ภาพจากกล้องประมวลผลในเครื่องเท่านั้น ไม่ถูกบันทึกหรือส่งออก<br>
     โหมดสาธิต: กด <b>Spacebar</b> แทนการออกกำลัง 1 ครั้ง (เหมาะกับการอธิบายหน้าชั้น)</p>
+  </div>
+  <div class="mascot-box"><div class="bubble">ชานมแก้วนี้…<br>ต้องสควอทกี่ครั้งนะ? 🤔</div><img src="img/mascot.webp" alt="ตัวละครนักศึกษาถือชานมไข่มุก"></div>
   </div>
 </section>
 
@@ -131,6 +146,7 @@
       <div class="tr" id="hud-time">45</div>
       <div class="reps"><b id="hud-reps">0</b><span id="hud-exname">ครั้ง</span></div>
       <div class="msg" id="hud-msg"></div>
+      <img class="mini" src="img/mascot.webp" alt="">
       <div class="bar"><i id="hud-bar"></i><span id="hud-bartext"></span></div>
     </div>
     <div class="count" id="count">3</div>
@@ -157,7 +173,7 @@
       <div class="stat"><b id="r-walk">0</b>นาที เดินเร็ว</div>
       <div class="stat"><b id="r-jog">0</b>นาที วิ่งเหยาะ</div>
     </div>
-    <div class="tip" id="r-tip"></div>
+    <div class="res-wrap"><img src="img/mascot.webp" alt="ตัวละคร"><div class="tip" id="r-tip"></div></div>
     <div class="row" style="margin-top:18px">
       <button class="btn" id="btn-next">🔁 เล่นเมนูถัดไป</button>
       <button class="btn ghost" id="btn-summary2">📊 สรุปผลทั้งหมด</button>
